@@ -152,7 +152,7 @@ litf/                 Python 参考实现（编解码 + TTF/OTF 转换 + 渲染�
 tests/                pytest 单元测试（round-trip / 排序去重 / 空字形 / 指令校验）
 web/index.html        纯前端解析 + 渲染演示
 samples/              示例字体（demo.litf / cjk.litf 等）与 SVG 产物
-spec/                 LITF 格式技术规范 V1.3
+spec/                 LITF 格式技术规范 V1.4
 ```
 
 ## License

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "litf"
-version = "1.3.0"
+version = "1.4.0"
 description = "LightType Font (LITF) -- a lightweight open vector font format based on SVG cubic Bezier paths."
 readme = "README.md"
 requires-python = ">=3.8"
