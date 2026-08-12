@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LightType Font (LITF) — 纯前端解析演示</title>
+<style>
+  :root {
+    --bg: #f7f8fa;
+    --panel: #ffffff;
+    --border: #e3e6ea;
+    --ink: #1f2329;
+    --muted: #6b7280;
+    --accent: #2563eb;
+    --code-bg: #f1f3f5;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.55;
+  }
+  header {
+    padding: 20px 28px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+  }
+  header h1 { margin: 0; font-size: 20px; }
+  header p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+  main { max-width: 1080px; margin: 0 auto; padding: 24px 28px 60px; }
+  .drop {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    background: var(--panel);
+    padding: 30px;
+    text-align: center;
+    color: var(--muted);
+    transition: border-color .15s, background .15s;
+    cursor: pointer;
+  }
+  .drop.over { border-color: var(--accent); background: #f0f6ff; color: var(--accent); }
+  .drop strong { color: var(--ink); }
+  .grid-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    margin: 18px 0;
+  }
+  .stat { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
+  .stat .k { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+  .stat .v { font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .section-title { font-size: 14px; font-weight: 700; margin: 26px 0 10px; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
+    gap: 6px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+  }
+  .cell {
+    aspect-ratio: 1 / 1;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fafbfc;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .cell:hover { border-color: var(--accent); }
+  .cell.sel { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(37,99,235,.25); }
+  .cell.empty { color: #c0c4cc; font-size: 18px; }
+  .cell svg { width: 100%; height: 100%; }
+  .detail {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 16px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    align-items: start;
+  }
+  .detail svg { width: 140px; height: 140px; background: #fafbfc; border: 1px solid var(--border); border-radius: 8px; }
+  .detail pre {
+    margin: 0;
+    background: var(--code-bg);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 12px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+  }
+  .row { font-size: 13px; margin: 2px 0; }
+  .row b { color: var(--muted); font-weight: 500; }
+  .toolbar { display: flex; gap: 10px; margin-top: 6px; }
+  input[type=text] {
+    flex: 1; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px;
+    font-size: 14px; background: var(--panel); color: var(--ink);
+  }
+  button {
+    padding: 9px 16px; border: 0; border-radius: 8px; background: var(--accent);
+    color: #fff; font-size: 14px; cursor: pointer;
+  }
+  button:hover { filter: brightness(1.05); }
+  .preview { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 18px; overflow-x: auto; }
+  .preview svg { display: block; }
+  .hint { color: var(--muted); font-size: 12px; margin-top: 6px; }
+  .err { color: #d92d20; font-size: 13px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>LightType Font (LITF) · 纯前端解析演示</h1>
+  <p>零依赖 · 可离线 · 直接把 .litf 拖进来即可解析与渲染——轮廓即 SVG，天然可渲染</p>
+</header>
+<main>
+  <div class="drop" id="drop">
+    <p><strong>拖入一个 .litf 文件</strong>，或点击此处选择文件</p>
+    <p class="hint">示例文件见仓库 <code>samples/demo.litf</code> 与 <code>samples/cjk.litf</code></p>
+    <input type="file" id="file" accept=".litf" hidden />
+  </div>
+
+  <div id="content" style="display:none">
+    <div class="grid-info" id="stats"></div>
+
+    <div class="section-title">字形网格（点击查看详情）</div>
+    <div class="grid" id="grid"></div>
+
+    <div class="section-title">选中字形</div>
+    <div class="detail" id="detail"></div>
+
+    <div class="section-title">文本排版预览</div>
+    <div class="toolbar">
+      <input type="text" id="text" value="LITF 2026 开源字体" />
+      <button id="renderBtn">渲染</button>
+    </div>
+    <div class="hint">使用各字形 advance_width 进行水平排版，按全局 viewBox 渲染</div>
+    <div class="preview" id="preview" style="margin-top:10px"></div>
+  </div>
+</main>
+
+<script>
+const SVGNS = "http://www.w3.org/2000/svg";
+let FONT = null;
+
+function parseLITF(buf) {
+  const dv = new DataView(buf);
+  const magic = new TextDecoder().decode(new Uint8Array(buf, 0, 4));
+  if (magic !== "LITF") throw new Error("魔数错误：期望 LITF，得到 " + JSON.stringify(magic));
+  let off = 4;
+  const viewBox_w = dv.getUint16(off, true); off += 2;
+  const viewBox_h = dv.getUint16(off, true); off += 2;
+  const ascent = dv.getInt16(off, true); off += 2;
+  const descent = dv.getInt16(off, true); off += 2;
+  const units_per_em = dv.getUint16(off, true); off += 2;
+  const glyph_count = dv.getUint32(off, true); off += 4;
+  off += 8; // reserved[2]
+  const glyphs = [];
+  for (let i = 0; i < glyph_count; i++) {
+    const codepoint = dv.getUint32(off, true); off += 4;
+    const advance_width = dv.getInt32(off, true); off += 4;
+    const path_byte_len = dv.getUint32(off, true); off += 4;
+    const path_data = new TextDecoder().decode(new Uint8Array(buf, off, path_byte_len));
+    off += path_byte_len;
+    glyphs.push({ codepoint, advance_width, path_data });
+  }
+  return { viewBox_w, viewBox_h, ascent, descent, units_per_em, glyph_count, glyphs };
+}
+
+function isEmpty(g) { return g.path_data.trim() === "E"; }
+
+function findGlyph(cp) {
+  const gs = FONT.glyphs;
+  let lo = 0, hi = gs.length - 1;
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1;
+    const c = gs[mid].codepoint;
+    if (c === cp) return gs[mid];
+    if (c < cp) lo = mid + 1; else hi = mid - 1;
+  }
+  return null;
+}
+
+// Build a self-contained SVG string for one glyph, scaled to sizePx.
+function glyphSVG(g, sizePx) {
+  const H = FONT.ascent - FONT.descent;
+  const vbH = H;
+  const inner = isEmpty(g) ? "" : `<path d="${g.path_data}" fill="#111"/>`;
+  return `<svg viewBox="0 0 ${FONT.viewBox_w} ${vbH}" width="${sizePx}" height="${sizePx}" `
+       + `preserveAspectRatio="xMidYMid meet" xmlns="${SVGNS}">`
+       + `<g transform="translate(0, ${FONT.ascent}) scale(1,-1)">${inner}</g></svg>`;
+}
+
+function renderText(text, px) {
+  const scale = px / FONT.viewBox_h;
+  const H = FONT.ascent - FONT.descent;
+  const baseline_y = FONT.ascent * scale;
+  const height = H * scale;
+  let penX = 0;
+  let groups = "";
+  for (const ch of text) {
+    const cp = ch.codePointAt(0);
+    const g = findGlyph(cp);
+    if (!g) { penX += 0.5 * FONT.viewBox_w * scale; continue; }
+    if (!isEmpty(g)) {
+      groups += `<g transform="translate(${penX.toFixed(2)}, ${baseline_y.toFixed(2)}) `
+              + `scale(${scale.toFixed(6)}, ${(-scale).toFixed(6)})">`
+              + `<path d="${g.path_data}" fill="#111"/></g>`;
+    }
+    penX += g.advance_width * scale;
+  }
+  const width = Math.max(1, penX);
+  return `<svg viewBox="0 0 ${width.toFixed(2)} ${height.toFixed(2)}" width="${width.toFixed(0)}" `
+       + `height="${height.toFixed(0)}" xmlns="${SVGNS}">`
+       + `<rect width="100%" height="100%" fill="#fff"/>${groups}</svg>`;
+}
+
+function charLabel(cp) {
+  if (cp === 0x20) return "␣";
+  if (cp < 0x21 || (cp > 0x7e && cp < 0xa0)) return "·";
+  try { return String.fromCodePoint(cp); } catch { return "·"; }
+}
+
+function showDetail(g) {
+  const det = document.getElementById("detail");
+  const ch = charLabel(g.codepoint);
+  det.innerHTML =
+    `<div>${glyphSVG(g, 140)}</div>` +
+    `<div>` +
+      `<div class="row"><b>字符：</b>${ch} (U+${g.codepoint.toString(16).toUpperCase().padStart(4, "0")})</div>` +
+      `<div class="row"><b>advance_width：</b>${g.advance_width}</div>` +
+      `<div class="row"><b>类型：</b>${isEmpty(g) ? "空字形 (E)" : "绘制字形"}</div>` +
+      (isEmpty(g) ? "" : `<div class="row"><b>path_data：</b></div><pre>${g.path_data}</pre>`) +
+    `</div>`;
+  document.querySelectorAll(".cell").forEach(c => c.classList.remove("sel"));
+  const el = document.querySelector(`.cell[data-cp="${g.codepoint}"]`);
+  if (el) el.classList.add("sel");
+}
+
+function renderAll(buf) {
+  FONT = parseLITF(buf);
+  document.getElementById("drop").style.display = "none";
+  document.getElementById("content").style.display = "block";
+
+  const stats = document.getElementById("stats");
+  stats.innerHTML = [
+    ["glyph_count", FONT.glyph_count],
+    ["viewBox", `${FONT.viewBox_w}×${FONT.viewBox_h}`],
+    ["ascent", FONT.ascent],
+    ["descent", FONT.descent],
+    ["units_per_em", FONT.units_per_em],
+  ].map(([k, v]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("");
+
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+  FONT.glyphs.forEach(g => {
+    const cell = document.createElement("div");
+    cell.className = "cell" + (isEmpty(g) ? " empty" : "");
+    cell.dataset.cp = g.codepoint;
+    cell.title = "U+" + g.codepoint.toString(16).toUpperCase();
+    if (isEmpty(g)) {
+      cell.textContent = "∅";
+    } else {
+      cell.innerHTML = glyphSVG(g, 48);
+    }
+    cell.addEventListener("click", () => showDetail(g));
+    grid.appendChild(cell);
+  });
+
+  // default selection: first non-empty glyph
+  const first = FONT.glyphs.find(g => !isEmpty(g)) || FONT.glyphs[0];
+  showDetail(first);
+  doRenderText();
+}
+
+function doRenderText() {
+  const text = document.getElementById("text").value;
+  document.getElementById("preview").innerHTML = renderText(text, 72);
+}
+
+function handleFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try { renderAll(new Uint8Array(reader.result)); }
+    catch (e) { alert("解析失败：" + e.message); }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+const drop = document.getElementById("drop");
+const fileInput = document.getElementById("file");
+drop.addEventListener("click", () => fileInput.click());
+fileInput.addEventListener("change", e => handleFile(e.target.files[0]));
+drop.addEventListener("dragover", e => { e.preventDefault(); drop.classList.add("over"); });
+drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+drop.addEventListener("drop", e => {
+  e.preventDefault(); drop.classList.remove("over");
+  handleFile(e.dataTransfer.files[0]);
+});
+document.getElementById("renderBtn").addEventListener("click", doRenderText);
+document.getElementById("text").addEventListener("keydown", e => { if (e.key === "Enter") doRenderText(); });
+</script>
+</body>
+</html>
