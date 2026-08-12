@@ -1,5 +1,7 @@
 # LightType Font (LITF)
 
+[简体中文](./README_zh.md) | English
+
 > A lightweight, open-source vector font format built on standard SVG cubic-Bézier paths — minimal, flat, and easy to adopt.
 >
 > **Public name: LightType Font (LITF)**

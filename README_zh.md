@@ -1,5 +1,7 @@
 # LightType Font (LITF)
 
+[简体中文](./README_zh.md) | [English](./README.md)
+
 > 轻量化开源矢量字体格式 · 基于标准 SVG 三次贝塞尔路径 · 去冗余、扁平化、易接入
 >
 > **对外推广标准名称：LightType Font（LITF）**
