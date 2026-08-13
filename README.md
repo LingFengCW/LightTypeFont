@@ -5,6 +5,7 @@
 > A lightweight, open-source vector font format built on standard SVG cubic-Bézier paths — minimal, flat, and easy to adopt.
 >
 > **Public name: LightType Font (LITF)**
+> Chinese project codename: **泠汶** (Língwèn) — used only in Chinese/internal contexts as an alias; it never replaces LightType Font as the format's public name.
 > The full project name *Open LightType Font* is reserved for the open-source license and project pages; the file marker, extension, and magic number never carry `Open`.
 
 ---
