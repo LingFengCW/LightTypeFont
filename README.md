@@ -69,10 +69,12 @@ litf render   demo.litf "Hello LITF" -o out.svg   # text -> SVG
 
 ### Web demo (pure frontend, no backend)
 
-Open [`web/index.html`](web/index.html) and drag any `.litf` file in:
+Open [`docs/index.html`](docs/index.html) and drag any `.litf` file in:
 - Pure `ArrayBuffer` parsing, zero dependencies, runs offline
 - Glyph grid preview; click a glyph to inspect its SVG `path` and live render
 - Text layout preview — proves "outline is SVG, renders natively"
+
+> Live demo: after enabling GitHub Pages with source `/docs`, it is served at `https://lingfengcw.github.io/LightTypeFont/`.
 
 ## Binary layout
 
@@ -153,7 +155,7 @@ litf/                 Python reference implementation (codec + TTF/OTF conversio
   converter.py        TTF/OTF -> LITF (quad->cubic), LITF -> SVG
   cli.py              command-line tool `litf`
 tests/                pytest unit tests (round-trip / sort-dedup / empty glyph / command check)
-web/index.html        pure-frontend parser + renderer demo
+docs/index.html       pure-frontend parser + renderer demo
 samples/              sample fonts (demo.litf / cjk.litf ...) and SVG output
 spec/                 LITF format specification V1.4
 ```

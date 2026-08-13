@@ -69,10 +69,12 @@ litf render   demo.litf "Hello LITF" -o out.svg   # 文本 -> SVG
 
 ### 网页演示（纯前端，无需后端）
 
-打开 [`web/index.html`](web/index.html)，把任意 `.litf` 文件拖进去即可：
+打开 [`docs/index.html`](docs/index.html)，把任意 `.litf` 文件拖进去即可：
 - 纯 `ArrayBuffer` 解析，零依赖、可离线运行
 - 字形网格预览，点击查看单个字的 SVG `path` 与实时渲染
 - 文本排版预览，直观体现「轮廓即 SVG、天然可渲染」
+
+> 在线演示：启用 GitHub Pages 并将 Source 设为 `/docs` 后，演示页地址为 `https://lingfengcw.github.io/LightTypeFont/`。
 
 ## 二进制结构
 
@@ -153,7 +155,7 @@ litf/                 Python 参考实现（编解码 + TTF/OTF 转换 + 渲染�
   converter.py        TTF/OTF -> LITF（二次转三次）、LITF -> SVG
   cli.py              命令行工具 litf
 tests/                pytest 单元测试（round-trip / 排序去重 / 空字形 / 指令校验）
-web/index.html        纯前端解析 + 渲染演示
+docs/index.html       纯前端解析 + 渲染演示
 samples/              示例字体（demo.litf / cjk.litf 等）与 SVG 产物
 spec/                 LITF 格式技术规范 V1.4
 ```
