@@ -151,7 +151,9 @@
 const SVGNS = "http://www.w3.org/2000/svg";
 let FONT = null;
 
-function parseLITF(buf) {
+function parseLITF(input) {
+  // Accept either an ArrayBuffer or a TypedArray view (e.g. Uint8Array).
+  const buf = (input instanceof ArrayBuffer) ? input : input.buffer;
   const dv = new DataView(buf);
   const magic = new TextDecoder().decode(new Uint8Array(buf, 0, 4));
   if (magic !== "LITF") throw new Error("魔数错误：期望 LITF，得到 " + JSON.stringify(magic));
@@ -290,7 +292,7 @@ function handleFile(file) {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = () => {
-    try { renderAll(new Uint8Array(reader.result)); }
+    try { renderAll(reader.result); }
     catch (e) { alert("解析失败：" + e.message); }
   };
   reader.readAsArrayBuffer(file);
